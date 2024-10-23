@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Permission;
+use Yajra\DataTables\DataTables;
 
 class PermissionsController extends Controller
 {
@@ -12,11 +13,13 @@ class PermissionsController extends Controller
      */
     public function index(Request $request)
     {
-        if($request->ajax())
-        {
-            return $this->getPermissions($request->role_id);
-        }
-        return view('users.permissions.index');
+      if($request->ajax())
+      {
+          $permissions = Permission::all();
+          return DataTables::of($permissions)
+              ->make(true);
+      }
+      return view('users.permissions.index');
     }
 
     /**

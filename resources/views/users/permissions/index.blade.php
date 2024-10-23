@@ -52,7 +52,6 @@
                                     <th>ID</th>
                                     <th>Name</th>
                                     <th>Guard</th>
-                                    <th>Action</th>
                                 </tr>
                             </thead>
                         </table>
@@ -64,8 +63,27 @@
    </div>
 @endsection
 
-@section('css')
-    <link rel="stylesheet" href="/css/admin_custom.css">
+
+@section('js')
+    <script>
+        $(document).ready(function(){
+            $('#tblData').DataTable({
+               "paging": true,
+                "lengthChange": false,
+                "searching": false,
+                "ordering": true,
+                "info": true,
+                "autoWidth": false,
+                "responsive": true,
+                ajax: '{{route('users.permissions.index')}}',
+                columns: [
+                    {data: 'id', name: 'id'},
+                    {data: 'name', name: 'name'},
+                    {data: 'guard_name', name: 'guard_name'},
+                ]
+            });
+        });
+    </script>
 @stop
 
 @section('plugins.Datatables', true)
