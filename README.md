@@ -10,6 +10,12 @@
 
     https://spatie.be/docs/laravel-permission/v6/introduction
 
-## GuideLine setup SweetAlert
+## GuideLine setup toastr in laravel
 
-    https://realrashid.github.io/sweet-alert/install
+    https://github.com/yoeunes/toastr
+
+## Guideline datable
+
+    https://yajrabox.com/docs/laravel-datatables/11.0
+
+    composer require yajra/laravel-datatables-oracle:"^10.3.1"
