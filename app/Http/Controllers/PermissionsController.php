@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\PermissionsRequest;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Permission;
+use Yajra\DataTables\Contracts\DataTable;
 use Yajra\DataTables\DataTables;
 
 class PermissionsController extends Controller
@@ -15,9 +17,7 @@ class PermissionsController extends Controller
     {
       if($request->ajax())
       {
-          $permissions = Permission::all();
-          return DataTables::of($permissions)
-              ->make(true);
+        return $this->getPermission()->make(true);
       }
       return view('users.permissions.index');
     }
@@ -38,23 +38,19 @@ class PermissionsController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(PermissionsRequest $request)
     {
-        //Validate name
-        $this->validate($request, [
-            'name' => 'required|unique:permissions,name'
-        ]);
-        $permission = Permission::create(["name" => strtolower($request->name)]);
+        $permission = Permission::create($request->validated());
 
-        if($permission)
-        {
-
-            toastr()->success('Data has been saved successfully!');
-            return view('users.permissions.index');
+        if($permission) {
+            // Store success message in the session
+            return redirect()->route('users.permissions.index')->with('success', 'New Permission Added Successfully.');
         }
-        toastr()->error('An error has occurred please try again later.');
-        return back()->withInput();
+
+        // Store error message in the session
+        return back()->withInput()->with('error', 'Permission Add Error! Please Try again.');
     }
+
 
     /**
      * Display the specified resource.
@@ -67,24 +63,49 @@ class PermissionsController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Permission $permission)
     {
-        //
+        return view('users.permissions.edit')->with(['permission'=>$permission]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(PermissionsRequest $request,  Permission $permission)
     {
-        //
+        if ($permission->update($request->validated())) {
+            return redirect()->route('users.permissions.index')->with('success', 'Permission Updated Successfully.');
+        }
+
+        return back()->withInput()->with('error', 'Permission Update Error! Please Try again.');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Request $request, Permission $permission = null)
     {
-        //
+        if (is_null($permission)) {
+            return response()->json(["message" => "Permission not found"], 404);
+        }
+
+        if ($request->ajax() && $permission->delete()) {
+            return response()->json(["message" => "Permission Deleted Successfully"], 200);
+        }
+
+        return response()->json(["message" => "Data Delete Error! Please Try again"], 500);
+
     }
+    private function getPermission(){
+        $data = Permission::get();
+        return DataTables::of($data)
+        ->addColumn('action', function($data){
+            $action = "";
+            $action.="<a class='btn btn-warning' id='btnEdit' href='".route('users.permissions.edit', $data->id)."'><i class='fas fa-edit'></i></a>";
+            $action.=" <button class='btn  btn-outline-danger' id='btnDel' data-id='".$data->id."'><i class='fas fa-trash'></i></button>";
+                return $action;
+        });
+    }
+
+
 }

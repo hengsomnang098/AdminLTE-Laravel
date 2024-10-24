@@ -449,13 +449,18 @@ return [
             ],
         ],
         'Sweetalert2' => [
-            'active' => false,
+            'active' => true,
             'files' => [
                 [
                     'type' => 'js',
-                    'asset' => false,
-                    'location' => '//cdn.jsdelivr.net/npm/sweetalert2@8',
+                    'asset' => true,
+                    'location' => '//cdn.jsdelivr.net/npm/sweetalert2@11',
                 ],
+                [
+                    'type' => 'css',
+                    'asset' => true,
+                    'location' => '//cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css',
+                ]
             ],
         ],
         'Pace' => [
@@ -473,7 +478,23 @@ return [
                 ],
             ],
         ],
-    ],
+
+        'Toastr'=>[
+                'active'=>true,
+                'files'=>[
+                    [
+                        'type'=>'css',
+                        'asset'=>true,
+                        'location'=>'//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css'
+                    ],
+                    [
+                        'type'=>'js',
+                        'asset'=>true,
+                        'location'=>'//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js'
+                    ]
+                ]
+            ]
+        ],
 
     /*
     |--------------------------------------------------------------------------
