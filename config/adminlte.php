@@ -328,7 +328,7 @@ return [
                 ],
                 [
                     'text' => 'Roles',
-                    // 'route' => 'users.roles.index',
+                    'route' => 'users.roles.index',
                     'active' => ['users/roles/*'],
                 ],
                 [
@@ -459,7 +459,7 @@ return [
                 [
                     'type' => 'css',
                     'asset' => true,
-                    'location' => '//cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css',
+                    'location' => 'https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css',
                 ]
             ],
         ],

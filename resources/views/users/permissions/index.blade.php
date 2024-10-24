@@ -11,7 +11,6 @@
 @section('content')
    <div class="container-fluid">
     <div class="row">
-        <div id="errorBox"></div>
         <div class="col">
             <form method="POST" action="{{route('users.permissions.store')}}">
                 @csrf

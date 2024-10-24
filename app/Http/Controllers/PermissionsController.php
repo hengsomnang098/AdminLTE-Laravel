@@ -17,7 +17,7 @@ class PermissionsController extends Controller
     {
       if($request->ajax())
       {
-        return $this->getPermission()->make(true);
+        return $this->getPermission();
       }
       return view('users.permissions.index');
     }
@@ -99,12 +99,21 @@ class PermissionsController extends Controller
     private function getPermission(){
         $data = Permission::get();
         return DataTables::of($data)
+        ->addColumn('chkBox',function ($row){
+            if($row->name=="dashboard")
+            {
+                return  "<input type='checkbox' name='permissions[{{$row->name}}]' value='{{$row->name}}' checked>";
+            }
+            else{
+              return  "<input type='checkbox' name='permissions[{{$row->name}}]' value='{{$row->name}}' class='permission' >";
+            }
+        })
         ->addColumn('action', function($data){
             $action = "";
             $action.="<a class='btn btn-warning' id='btnEdit' href='".route('users.permissions.edit', $data->id)."'><i class='fas fa-edit'></i></a>";
             $action.=" <button class='btn  btn-outline-danger' id='btnDel' data-id='".$data->id."'><i class='fas fa-trash'></i></button>";
                 return $action;
-        });
+        })->rawColumns(['chkBox', 'action'])->make(true);
     }
 
 

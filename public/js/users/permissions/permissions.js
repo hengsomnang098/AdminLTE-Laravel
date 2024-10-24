@@ -7,6 +7,9 @@ $.ajaxSetup({
 $(document).ready(function () {
     $("#tblData").DataTable({
         responsive: true,
+        processing: true,
+        serverSide: true,
+        autoWidth: false,
         ajax: "/users/permissions",
         columns: [
             { data: "id", name: "id" },
