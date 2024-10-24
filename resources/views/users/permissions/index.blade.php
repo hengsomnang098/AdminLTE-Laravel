@@ -12,7 +12,7 @@
    <div class="container-fluid">
     <div class="row">
         <div id="errorBox"></div>
-        <div class="col-3">
+        <div class="col">
             <form method="POST" action="{{route('users.permissions.store')}}">
                 @csrf
                 <div class="card">
@@ -36,7 +36,7 @@
                 </div>
             </form>
         </div>
-        <div class="col-9">
+        <div class="col">
             <div class="card">
                 <div class="card-header">
                     <div class="card-title">
@@ -68,12 +68,6 @@
     <script>
         $(document).ready(function(){
             $('#tblData').DataTable({
-               "paging": true,
-                "lengthChange": false,
-                "searching": false,
-                "ordering": true,
-                "info": true,
-                "autoWidth": false,
                 "responsive": true,
                 ajax: '{{route('users.permissions.index')}}',
                 columns: [
