@@ -1,4 +1,3 @@
-
 @extends('adminlte::page')
 
 @section('title', 'Update Roles | Dashboard')
@@ -9,27 +8,20 @@
 
 @section('content')
    <div class="container-fluid">
-        <div id="errorBox"></div>
-        <form action="{{route('users.roles.update', $role->id)}}" method="POST">
-            @method('patch')
+        <form action="{{route('users.roles.update',$role->id)}}" method="POST">
             @csrf
+            @method('PUT')
             <div class="card">
                 <div class="card-body">
-                    <div class="form-group">
-                        <label for="name" class="form-label"> Name <span class="text-danger"> *</span></label>
-                        <input type="text" name="name" class="form-control" placeholder="For e.g. Manager" value={{ucfirst($role->name)}}>
-                        @if($errors->has('name'))
-                            <span class="text-danger">{{$errors->first('name')}}</span>
-                        @endif
-                    </div>
-                    <label for="name" class="form-label"> Assign Permissions <span class="text-danger"> *</span></label>
+                    <x-adminlte-input name="name" type="text" placeholder="EFor e.g. Manager" value="{{$role->name}}"/>
                     <!--DataTable-->
                     <div class="table-responsive">
-                        <table id="tblData" class="table table-bordered table-striped dataTable dtr-inline">
+                        <table id="tblPermissionsEdit" class="table table-bordered table-striped dataTable dtr-inline">
                             <thead>
                                 <tr>
                                     <th>
                                         <input type="checkbox" id="all_permission" name="all_permission">
+                                        {{-- <x-adminlte-input type="checkbox"  name="all_permission" id="all_permission" label="All Permissions"/> --}}
                                     </th>
                                     <th>Name</th>
                                     <th>Guard</th>
@@ -39,16 +31,13 @@
                     </div>
                 </div>
                 <div class="card-footer">
-                    <button type="submit" class="btn btn-primary">Save Role</button>
+                    {{-- <button type="submit" class="btn btn-primary">Update Role</button> --}}
+                    <x-adminlte-button class=" bg-gradient-info" type="submit" label="update" icon="fas fa-lg fa-save"/>
                 </div>
             </div>
         </form>
    </div>
-@stop
-
-@section('css')
-    <link rel="stylesheet" href="/css/admin_custom.css">
-@stop
+@endsection
 
 @section('js')
 <script>
@@ -77,7 +66,7 @@
                 });
             }
         });
-        var table = $('#tblData').DataTable({
+        var table = $('#tblPermissionsEdit').DataTable({
             reponsive:true, processing:true, serverSide:true, autoWidth:false, bPaginate:false, bFilter:false,
             ajax:"{{route('users.permissions.index', ['role_id'=>$role->id])}}",
             columns:[
@@ -91,6 +80,31 @@
 
 
 </script>
-@stop
+{{-- <script src="{{ URL::asset('/js/users/roles/roles.js') }}"></script> --}}
 
-@section('plugins.Datatables', true)
+    <!-- Trigger SweetAlert2 for success message -->
+    @if(session('success'))
+    <script>
+        Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: "{{ session('success') }}",
+            timer: 3000,
+            showConfirmButton: false
+        });
+    </script>
+    @endif
+
+    <!-- Trigger SweetAlert2 for error message -->
+    @if(session('error'))
+    <script>
+        Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: "{{ session('error') }}",
+            timer: 3000,
+            showConfirmButton: false
+        });
+    </script>
+    @endif
+@endsection

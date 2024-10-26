@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\PermissionsRequest;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Permission;
-use Yajra\DataTables\Contracts\DataTable;
+use Spatie\Permission\Models\Role;
 use Yajra\DataTables\DataTables;
 
 class PermissionsController extends Controller
@@ -17,7 +17,7 @@ class PermissionsController extends Controller
     {
       if($request->ajax())
       {
-        return $this->getPermission();
+        return $this->getPermission($request->role_id);
       }
       return view('users.permissions.index');
     }
@@ -96,15 +96,25 @@ class PermissionsController extends Controller
         return response()->json(["message" => "Data Delete Error! Please Try again"], 500);
 
     }
-    private function getPermission(){
+
+    private function getPermission($role_id){
         $data = Permission::get();
-        return DataTables::of($data)
-        ->addColumn('chkBox',function ($row){
+        return DataTables::of($data,$role_id)
+        ->addColumn('chkBox',function ($row) use ($role_id){
             if($row->name=="dashboard")
             {
-                return  "<input type='checkbox' name='permissions[{{$row->name}}]' value='{{$row->name}}' checked>";
+                return  "<input type='checkbox' name='permissions[".$row->name."]' value='$row->name' checked onclick='return false;'>";
             }
             else{
+                if($role_id!="")
+                {
+                    $role = Role::where('id',$role_id)->first();
+                    $rolePermissions = $role->permissions->pluck('name')->toArray();
+                    if(in_array($row->name, $rolePermissions))
+                    {
+                        return  "<input type='checkbox' name='permissions[{{$row->name}}]' value='{{$row->name}}' checked>";
+                    }
+                }
               return  "<input type='checkbox' name='permissions[{{$row->name}}]' value='{{$row->name}}' class='permission' >";
             }
         })

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\RoleRequest;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -34,13 +35,8 @@ class RolesController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(RoleRequest $request)
     {
-        $this->validate($request, [
-            'name' => 'required|unique:roles,name',
-            'permissions' => 'required|array'
-        ]);
-
         $permissions = array_map(function($permission) {
             return trim($permission, '{}'); // remove curly braces
         }, $request->permissions);
@@ -51,7 +47,8 @@ class RolesController extends Controller
             return back()->with('error', 'Some permissions are invalid or do not exist.');
         }
 
-        $role = Role::create(['name' => strtolower(trim($request->name))]);
+        // $role = Role::create(['name' => strtolower(trim($request->name))]);
+        $role = Role::create(['name'=>strtolower(trim($request->validated('name')))]);
         $role->syncPermissions($validPermissions);
 
         if ($role) {
@@ -65,38 +62,65 @@ class RolesController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Request $request, Role $role)
     {
-        //
+        if($request->ajax())
+        {
+            return $this->getRolesPermissions($role);
+        }
+        return view('users.roles.show')->with(['role' => $role]);
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Role $role)
     {
-        //
+        return view('users.roles.edit')->with(['role' => $role]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Role $role, RoleRequest $request)
     {
-        //
+        $permissions = array_map(function($permission) {
+            return trim($permission, '{}'); // remove curly braces
+        }, $request->permissions);
+
+        $validPermissions = Permission::whereIn('name', $permissions)->pluck('name')->toArray();
+
+        if (count($validPermissions) != count($permissions)) {
+            return back()->with('error', 'Some permissions are invalid or do not exist.');
+        }
+        $role->syncPermissions($validPermissions);
+        $role->update(['name'=>strtolower(trim($request->validated(['name'])))]);
+        if($role)
+        {
+            return redirect()->route('users.roles.index')->with('success', 'Role Added Successfully.');
+        }
+        return back()->withInput()->with('error', 'Role Update Error! Please try again.');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Request $request, Role $role)
     {
-        //
+        if($request->ajax() && $role->delete())
+        {
+            return response(["message" => "Role Deleted Successfully"], 200);
+        }
+        return response(["message" => "Data Delete Error! Please Try again"], 201);
     }
 
-    private function getRoles(){
-        $data = Role::withCount(['users','permissions'])->get();
+    private function getRoles()
+    {
+        $data = Role::withCount(['users', 'permissions'])->get();
         return DataTables::of($data)
+                ->addColumn('name', function($row){
+                    return ucfirst($row->name);
+                })
                 ->addColumn('users_count', function($row){
                     return $row->users_count;
                 })
@@ -105,13 +129,12 @@ class RolesController extends Controller
                 })
                 ->addColumn('action', function($row){
                     $action = "";
+                    $action.="<a class='btn btn-xs btn-success' id='btnShow' href='".route('users.roles.show', $row->id)."'><i class='fas fa-eye'></i></a> ";
                     $action.="<a class='btn btn-xs btn-warning' id='btnEdit' href='".route('users.roles.edit', $row->id)."'><i class='fas fa-edit'></i></a>";
                     $action.=" <button class='btn btn-xs btn-outline-danger' id='btnDel' data-id='".$row->id."'><i class='fas fa-trash'></i></button>";
                     return $action;
                 })
-
-                ->rawColumns(['action'])
-                ->make(true);
+                ->make('true');
     }
 
     private function getRolesPermissions($role)
